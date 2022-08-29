@@ -7,6 +7,7 @@ window.onload = () => {
     const canvas = document.querySelector('canvas')
 
     const ctx = canvas.getContext('2d')
+
 const img = new Image()
 
 img.src = './images/road.png'
@@ -18,17 +19,62 @@ class Vehicle{
     this.w = 50,
     this.h = 100 
   }
+  left() {
+    return this.x
 }
-class Obstacle{
-  constructor(x,y,width,height,color) {
-    this.x = Math.random()*canvas.width-100
-    this.y = 0
-    this.w = (Math.random()*canvas.width)/2
-    this.h= 20
-    this.color = 'red'
-  }
+right() {
+    return this.x + this.width
+}
+top() {
+    return this.y
+}
+bottom() {
+    //console.log("height", this.height)
+    return this.y + this.height
+}
 }
 let player = new Vehicle
+class Obstacle{
+  constructor(x,y,width,height) {
+    this.x = (Math.random()*canvas.width)-150
+    this.y = y
+    this.w = (Math.random()*canvas.width)/2+100
+    this.h= 20
+  }
+  draw(){
+    console.log('hi')
+    ctx.fillStyle = 'red'
+    ctx.fillRect(this.x,this.y,this.w,this.h)
+}
+updatePosition(){
+  this.y += 1
+}
+left() {
+  return this.x
+}
+right() {
+  return this.x + this.width
+}
+top() {
+  return this.y
+}
+bottom() {
+  //console.log("height", this.height)
+  return this.y + this.height
+}
+}
+
+function checkGameOver() {
+  for(let i = 0; i < obstacleArray.length; i++){
+  if(!player.bottom ()< obstacleArray[i].top() || 
+  !player.top() > obstacleArray[i].bottom() || 
+  !player.right() < obstacleArray[i].left() || 
+  !player.left() > obstacleArray[i].right()) {
+    console.log('welp')
+  }
+}
+}
+
 const car = new Image();
   car.src = "images/car.png";
   car.onload = function () {
@@ -38,27 +84,50 @@ const car = new Image();
   document.addEventListener('keydown', (e) => {
   switch(e.code) {
     case 'ArrowRight':
+      if(player.x < 400) {
       player.x += 10
       ctx.clearRect(player.x-10,player.y,50,100)
       ctx.drawImage(img,0,0,500,700)
       ctx.drawImage(car,player.x,player.y,50,100)
+      }
       break;
     case 'ArrowLeft':
+      if(player.x > 50) {
       player.x -= 10
       ctx.clearRect(player.x+10,player.y,50,100)
       ctx.drawImage(img,0,0,500,700)
       ctx.drawImage(car,player.x,player.y,50,100)
+      }
       break
   }
   })
   let frames = 0
+  let obstacleArray = []
+  function score(){
+    const points = Math.floor(frames/5)
+    ctx.font = '18px serif'
+    ctx.fillStyle = 'white'
+    ctx.fillText(`Score: ${points}`, 100,50)
+}
+score()
   setInterval(() => {
     frames++
-    console.log('hi')
-    if(frames > 10) {
+    if(frames % 250 === 0) {
       console.log('hi')
-      ctx.fillRect(Obstacle.x,Obstacle.y,Obstacle.w,Obstacle.h)
+      obstacleArray.push(new Obstacle(0,0))
     }
-  }, 42)
+    for(let i=0; i < obstacleArray.length; i++) {
+      obstacleArray[i].updatePosition()
+    }
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+    ctx.drawImage(img,0,0,500,700)
+    ctx.drawImage(car, player.x, player.y, player.w, player.h);
+    for(let i=0; i < obstacleArray.length; i++) {
+        obstacleArray[i].draw()
+    }
+    score()
+    checkGameOver()
+  }, 15)
   }
+
 };
