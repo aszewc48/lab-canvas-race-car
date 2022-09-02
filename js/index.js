@@ -9,7 +9,6 @@ window.onload = () => {
     const ctx = canvas.getContext('2d')
 
 const img = new Image()
-
 img.src = './images/road.png'
 
 class Vehicle{
@@ -23,26 +22,28 @@ class Vehicle{
     return this.x
 }
 right() {
-    return this.x + this.width
+    return this.x + this.w
 }
 top() {
     return this.y
 }
 bottom() {
     //console.log("height", this.height)
-    return this.y + this.height
+    return this.y + this.h
+}
+crashWith(obs) {
+  return !(this.bottom()< obs.top() || this.top() > obs.bottom() || this.right() < obs.left() || this.left() > obs.right())
 }
 }
 let player = new Vehicle
 class Obstacle{
   constructor(x,y,width,height) {
     this.x = (Math.random()*canvas.width)-150
-    this.y = y
+    this.y = 0
     this.w = (Math.random()*canvas.width)/2+100
     this.h= 20
   }
   draw(){
-    console.log('hi')
     ctx.fillStyle = 'red'
     ctx.fillRect(this.x,this.y,this.w,this.h)
 }
@@ -53,25 +54,24 @@ left() {
   return this.x
 }
 right() {
-  return this.x + this.width
+  return this.x + this.w
 }
 top() {
   return this.y
 }
 bottom() {
-  //console.log("height", this.height)
-  return this.y + this.height
+  return this.y + this.h
 }
+
 }
 
 function checkGameOver() {
-  for(let i = 0; i < obstacleArray.length; i++){
-  if(!player.bottom ()< obstacleArray[i].top() || 
-  !player.top() > obstacleArray[i].bottom() || 
-  !player.right() < obstacleArray[i].left() || 
-  !player.left() > obstacleArray[i].right()) {
-    console.log('welp')
-  }
+  const crashed = obstacleArray.some(function (obs) {
+    return player.crashWith(obs)
+})
+if(crashed) {
+  window.location.reload()
+    alert(`Game over! Final Score: ${Math.floor(frames/5)}`)
 }
 }
 
@@ -105,15 +105,13 @@ const car = new Image();
   let obstacleArray = []
   function score(){
     const points = Math.floor(frames/5)
-    ctx.font = '18px serif'
+    ctx.font; '18px serif'
     ctx.fillStyle = 'white'
     ctx.fillText(`Score: ${points}`, 100,50)
 }
-score()
   setInterval(() => {
     frames++
     if(frames % 250 === 0) {
-      console.log('hi')
       obstacleArray.push(new Obstacle(0,0))
     }
     for(let i=0; i < obstacleArray.length; i++) {
@@ -130,4 +128,4 @@ score()
   }, 15)
   }
 
-};
+}
